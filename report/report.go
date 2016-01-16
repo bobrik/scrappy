@@ -2,19 +2,13 @@ package report
 
 import (
 	"fmt"
-	"regexp"
-	"sort"
-	"strings"
 
 	"github.com/bobrik/scrappy/mesos"
 )
 
-// validHostname is a regexp for for hostnames like <DATACENTERC><TYPE><NUMBER>
-var validHostname = regexp.MustCompile(`^(\d+)([a-z]+)(\d+)`)
-
 // Report contains resource usage on slave, role and task leve
 type Report struct {
-	Slaves Slaves `json:"slaves"`
+	Slaves []*Slave `json:"slaves"`
 }
 
 // Slave represents slave's state in the report
@@ -53,35 +47,16 @@ type Task struct {
 	Resources mesos.Resources `json:"resources"`
 }
 
-// Slaves is a slice of Slave instances
-type Slaves []*Slave
-
-func (s Slaves) Len() int {
-	return len(s)
-}
-
-func (s Slaves) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-
-func (s Slaves) Less(i, j int) bool {
-	if strings.Compare(s[i].SortString(), s[j].SortString()) == -1 {
-		return true
-	}
-
-	return false
-}
-
 // Generate converts Mesos state into the report
-func Generate(state *mesos.State) *Report {
+func Generate(state *mesos.State, role string) *Report {
 	r := &Report{
 		Slaves: make([]*Slave, 0, len(state.Slaves)),
 	}
 
-	sm := make(map[string]*Slave, len(state.Slaves))
+	slaves := make(map[string]*Slave, len(state.Slaves))
 
 	for _, slave := range slaveMap(state) {
-		sm[slave.ID] = &Slave{
+		slaves[slave.ID] = &Slave{
 			ID:                 slave.ID,
 			Hostname:           slave.Hostname,
 			AvailableResources: slave.Resources,
@@ -89,7 +64,7 @@ func Generate(state *mesos.State) *Report {
 		}
 
 		if slave.UnreservedResources.CPUs > 0 && slave.UnreservedResources.Memory > 0 {
-			sm[slave.ID].Roles["*"] = &Role{
+			slaves[slave.ID].Roles["*"] = &Role{
 				Name:               "*",
 				Tasks:              []*Task{},
 				AvailableResources: slave.UnreservedResources,
@@ -97,7 +72,7 @@ func Generate(state *mesos.State) *Report {
 		}
 
 		for name, resources := range slave.ReservedResources {
-			sm[slave.ID].Roles[name] = &Role{
+			slaves[slave.ID].Roles[name] = &Role{
 				Name:               name,
 				Tasks:              []*Task{},
 				AvailableResources: resources,
@@ -107,7 +82,7 @@ func Generate(state *mesos.State) *Report {
 
 	for _, f := range state.Frameworks {
 		for _, t := range f.Tasks {
-			slave := sm[t.SlaveID]
+			slave := slaves[t.SlaveID]
 
 			slave.AllocatedResources.Add(t.Resources)
 			slave.Roles[f.Role].AllocatedResources.Add(t.Resources)
@@ -121,13 +96,26 @@ func Generate(state *mesos.State) *Report {
 		}
 	}
 
-	for _, s := range sm {
+	filter(slaves, role)
+
+	for _, s := range slaves {
 		r.Slaves = append(r.Slaves, s)
 	}
 
-	sort.Sort(r.Slaves)
-
 	return r
+}
+
+// filter removes slaves that do not include given role
+func filter(slaves map[string]*Slave, role string) {
+	if role == "" {
+		return
+	}
+
+	for id, slave := range slaves {
+		if _, ok := slave.Roles[role]; !ok {
+			delete(slaves, id)
+		}
+	}
 }
 
 // slaveMap converts a slice of slaves into a map id -> slave
