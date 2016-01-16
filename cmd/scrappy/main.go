@@ -12,6 +12,9 @@ import (
 
 func main() {
 	u := flag.String("u", "", "mesos url (http://host:port)")
+	s := flag.String("s", "host", "sort order for slaves: host, cpu, mem")
+	r := flag.Bool("r", false, "reverse order")
+	f := flag.String("f", "", "role name to filter on")
 
 	flag.Parse()
 
@@ -25,9 +28,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	report := report.Generate(state)
+	rep := report.Generate(state, *f)
+	report.SortSlaves(rep.Slaves, *s, *r)
 
-	for i, slave := range report.Slaves {
+	for i, slave := range rep.Slaves {
 		fmt.Printf("%s: %s / %s\n", slave.Hostname, slave.AllocatedResources.String(), slave.AvailableResources.String())
 
 		fmt.Printf("  roles:\n")
@@ -39,7 +43,7 @@ func main() {
 			}
 		}
 
-		if i < len(report.Slaves)-1 {
+		if i < len(rep.Slaves)-1 {
 			fmt.Println()
 		}
 	}

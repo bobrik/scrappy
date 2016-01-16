@@ -32,6 +32,13 @@ dev: 0.40 CPUs, 0.25GB RAM / 2.00 CPUs, 0.98GB RAM
         - scrappy-example: 0.40 CPUs, 0.25GB RAM
 ```
 
+The following options are available:
+
+* `-u` Mesos URL to fetch data from.
+* `-s` sort method, one of `host`, `cpu`, `mem`.
+* `-r` reverse sort order.
+* `-f` role name to filter on.
+
 ## Known issues
 
 * Frameworks doing multiple roles at once are not supported. We assume that
