@@ -4,8 +4,14 @@ go:
   - 1.5
   - tip
 
+sudo: required
+
+services:
+  - docker
+
 before_script:
   - go install ./...
   - go get github.com/alecthomas/gometalinter
   - gometalinter --install --update
   - gometalinter --deadline 60s ./..
+  - docker build .
