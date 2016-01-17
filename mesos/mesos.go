@@ -48,8 +48,9 @@ func (r *Resources) Add(more Resources) {
 
 // Slave represents slave info from Mesos cluster state
 type Slave struct {
-	ID       string `json:"id"`
-	Hostname string `json:"hostname"`
+	ID         string                 `json:"id"`
+	Hostname   string                 `json:"hostname"`
+	Attributes map[string]interface{} `json:"attributes"`
 	// Total available resources
 	Resources Resources `json:"resources"`
 	// Reserved resources per role

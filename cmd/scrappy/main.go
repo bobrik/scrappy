@@ -32,7 +32,7 @@ func main() {
 	report.SortSlaves(rep.Slaves, *s, *r)
 
 	for i, slave := range rep.Slaves {
-		fmt.Printf("%s: %s / %s\n", slave.Hostname, slave.AllocatedResources.String(), slave.AvailableResources.String())
+		fmt.Printf("%s: %s / %s (%v)\n", slave.Hostname, slave.AllocatedResources.String(), slave.AvailableResources.String(), slave.Attributes)
 
 		fmt.Printf("  roles:\n")
 		for _, role := range slave.Roles {
