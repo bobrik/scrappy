@@ -13,11 +13,12 @@ type Report struct {
 
 // Slave represents slave's state in the report
 type Slave struct {
-	ID                 string           `json:"id"`
-	Hostname           string           `json:"hostname"`
-	AvailableResources mesos.Resources  `json:"available_resources"`
-	AllocatedResources mesos.Resources  `json:"allocated_resources"`
-	Roles              map[string]*Role `json:"roles"`
+	ID                 string                 `json:"id"`
+	Hostname           string                 `json:"hostname"`
+	Attributes         map[string]interface{} `json:"attributes"`
+	AvailableResources mesos.Resources        `json:"available_resources"`
+	AllocatedResources mesos.Resources        `json:"allocated_resources"`
+	Roles              map[string]*Role       `json:"roles"`
 }
 
 // SortString returns string representation for sorting
@@ -59,6 +60,7 @@ func Generate(state *mesos.State, role string) *Report {
 		slaves[slave.ID] = &Slave{
 			ID:                 slave.ID,
 			Hostname:           slave.Hostname,
+			Attributes:         slave.Attributes,
 			AvailableResources: slave.Resources,
 			Roles:              make(map[string]*Role, len(slave.ReservedResources)+1),
 		}
