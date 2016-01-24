@@ -12,7 +12,7 @@ import (
 
 func main() {
 	u := flag.String("u", "", "mesos url (http://host:port)")
-	s := flag.String("s", "host", "sort order for slaves: host, cpu, mem")
+	s := flag.String("s", "host", "sort order for slaves: host, cpu, cpu_percent, mem, mem_percent, tasks")
 	r := flag.Bool("r", false, "reverse order")
 	f := flag.String("f", "", "role name to filter on")
 
