@@ -1,11 +1,6 @@
 package report
 
-// ByCPU is a wrapper around slice of Slave instances to sort by CPU usage
-type ByCPU struct {
-	slaveSorter
-}
-
-// Less implements sort.Interface
-func (s ByCPU) Less(i, j int) bool {
-	return s.Slaves[i].AllocatedResources.CPUs < s.Slaves[j].AllocatedResources.CPUs
+// lessCPU compares two slaves in terms of CPU usage
+func lessCPU(i *Slave, j *Slave) bool {
+	return i.AllocatedResources.CPUs < j.AllocatedResources.CPUs
 }
