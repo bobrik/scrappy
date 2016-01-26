@@ -1,14 +1,8 @@
 package report
 
-// ByTasks is a wrapper around slice of Slave instances
-// to sort by number of tasks
-type ByTasks struct {
-	slaveSorter
-}
-
-// Less implements sort.Interface
-func (s ByTasks) Less(i, j int) bool {
-	return numberOfTasks(s.Slaves[i]) < numberOfTasks(s.Slaves[j])
+// lessTasks compares two slaves in terms of running task count
+func lessTasks(i *Slave, j *Slave) bool {
+	return numberOfTasks(i) < numberOfTasks(j)
 }
 
 // numberOfTasks returns number of tasks on the given slave

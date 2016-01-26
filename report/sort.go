@@ -15,17 +15,17 @@ const (
 func SortSlaves(slaves []*Slave, order string, reverse bool) {
 	switch order {
 	case hostOrder:
-		sort.Sort(ByHost{slaveSorter{slaves}})
+		sort.Sort(slaveSorter{slaves: slaves, less: lessHost})
 	case cpuOrder:
-		sort.Sort(ByCPU{slaveSorter{slaves}})
+		sort.Sort(slaveSorter{slaves: slaves, less: lessCPU})
 	case cpuPercentOrder:
-		sort.Sort(ByCPUPercent{slaveSorter{slaves}})
+		sort.Sort(slaveSorter{slaves: slaves, less: lessCPUPercent})
 	case memOrder:
-		sort.Sort(ByMem{slaveSorter{slaves}})
+		sort.Sort(slaveSorter{slaves: slaves, less: lessMem})
 	case memPercentOrder:
-		sort.Sort(ByMemPercent{slaveSorter{slaves}})
+		sort.Sort(slaveSorter{slaves: slaves, less: lessMemPercent})
 	case tasksOrder:
-		sort.Sort(ByTasks{slaveSorter{slaves}})
+		sort.Sort(slaveSorter{slaves: slaves, less: lessTasks})
 	}
 
 	if reverse {
@@ -36,15 +36,22 @@ func SortSlaves(slaves []*Slave, order string, reverse bool) {
 	}
 }
 
-// slaveSorter is a helper embeddable structure to implement Slave sorters
+// slaveSorter is a helper structure to implement Slave sorters.
+// users have to supply a slice of slaves and less fuction
+// equivalent to Less() method of sort.Sorter interface
 type slaveSorter struct {
-	Slaves []*Slave
+	slaves []*Slave
+	less   func(*Slave, *Slave) bool
 }
 
 func (s slaveSorter) Len() int {
-	return len(s.Slaves)
+	return len(s.slaves)
 }
 
 func (s slaveSorter) Swap(i, j int) {
-	s.Slaves[i], s.Slaves[j] = s.Slaves[j], s.Slaves[i]
+	s.slaves[i], s.slaves[j] = s.slaves[j], s.slaves[i]
+}
+
+func (s slaveSorter) Less(i, j int) bool {
+	return s.less(s.slaves[i], s.slaves[j])
 }
