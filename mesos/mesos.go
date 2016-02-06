@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 // State represents Mesos cluster state
@@ -60,8 +61,9 @@ type Slave struct {
 }
 
 // GetState returns Mesos master state from requested URL
-func GetState(u string) (*State, error) {
-	r, err := http.Get(fmt.Sprintf("%s/master/state", u))
+func GetState(u *url.URL) (*State, error) {
+	u.Path = "/master/state"
+	r, err := http.Get(u.String())
 	if err != nil {
 		return nil, err
 	}

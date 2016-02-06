@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 
 	"github.com/bobrik/scrappy/mesos"
@@ -23,7 +24,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	state, err := mesos.GetState(*u)
+	mesosUrl, err := url.Parse(*u)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	state, err := mesos.GetState(mesosUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
