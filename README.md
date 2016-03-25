@@ -9,10 +9,14 @@ It'd be nice to see that information exposed in Mesos UI nicely too.
 ## Usage
 
 Scrappy comes in a Docker container. Just point it to your Mesos master URL
-to get resource usage breakdown.
+to get resource usage breakdown. There are two flavors available.
+
+### Slaves
+
+`slaves` flavor reports stats on slave level:
 
 ```
-docker run --rm bobrik/scrappy -u http://mesos-master-host:mesos-master-port
+docker run --rm bobrik/scrappy slaves -u http://mesos-master:port
 ```
 
 Sample report for you to know what to expect:
@@ -39,8 +43,21 @@ The following options are available:
 * `-r` reverse sort order.
 * `-f` role name to filter on.
 
-## Known issues
+### Roles
 
-* Frameworks doing multiple roles at once are not supported. We assume that
-each framework only owns one role and each task can only span one role.
-This is fine most of the time.
+`roles` flavor reports stats on role level, useful if you have multiple of them:
+
+```
+docker run --rm bobrik/scrappy roles -u http://mesos-master:port
+```
+
+Sample report for just one default role for you to know what to expect:
+
+```
+- *: 0.30 CPUs, 0.12GB RAM / 2.00 CPUs, 0.98GB RAM
+```
+
+The following options are available:
+
+* `-u` Mesos URL to fetch data from.
+* `-f` role name to filter on.
