@@ -54,7 +54,8 @@ docker run --rm bobrik/scrappy roles -u http://mesos-master:port
 Sample report for just one default role for you to know what to expect:
 
 ```
-- *: 0.30 CPUs, 0.12GB RAM / 2.00 CPUs, 0.98GB RAM
+role CPUs used CPUs total     CPU %  RAM used RAM total     RAM %
+   *      0.30       2.00    15.00%    0.12GB    0.98GB    12.79%
 ```
 
 The following options are available:

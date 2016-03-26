@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"sort"
+	"text/tabwriter"
 
 	"github.com/bobrik/scrappy/mesos"
 	"github.com/bobrik/scrappy/report"
@@ -57,8 +58,25 @@ func main() {
 
 	sort.Strings(names)
 
+	w := &tabwriter.Writer{}
+	w.Init(os.Stdout, 10, 0, 1, ' ', tabwriter.AlignRight)
+
+	w.Write([]byte("role\tCPUs used\tCPUs total\tCPU %\tRAM used\tRAM total\tRAM %\t\n"))
+
 	for _, name := range names {
 		role := roles[name]
-		fmt.Printf("- %s: %s / %s\n", role.Name, role.AllocatedResources.String(), role.AvailableResources.String())
+		fmt.Fprintf(
+			w,
+			"%s\t%.2f\t%.2f\t%.2f%%\t%.2fGB\t%.2fGB\t%.2f%%\t\n",
+			role.Name,
+			role.AllocatedResources.CPUs,
+			role.AvailableResources.CPUs,
+			role.AllocatedResources.CPUs/role.AvailableResources.CPUs*100,
+			role.AllocatedResources.Memory/1024,
+			role.AvailableResources.Memory/1024,
+			role.AllocatedResources.Memory/role.AvailableResources.Memory*100,
+		)
 	}
+
+	w.Flush()
 }
