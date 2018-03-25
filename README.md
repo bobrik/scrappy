@@ -11,12 +11,12 @@ It'd be nice to see that information exposed in Mesos UI nicely too.
 Scrappy comes in a Docker container. Just point it to your Mesos master URL
 to get resource usage breakdown. There are two flavors available.
 
-### Slaves
+### Agents
 
-`slaves` flavor reports stats on slave level:
+`agents` flavor reports stats on agent level:
 
 ```
-docker run --rm bobrik/scrappy slaves -u http://mesos-master:port
+docker run --rm bobrik/scrappy agents -u http://mesos-master:port
 ```
 
 Sample report for you to know what to expect:

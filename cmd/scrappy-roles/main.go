@@ -39,8 +39,8 @@ func main() {
 	roles := map[string]*report.Role{}
 	names := []string{}
 
-	for _, slave := range rep.Slaves {
-		for _, role := range slave.Roles {
+	for _, agent := range rep.Agents {
+		for _, role := range agent.Roles {
 			if _, ok := roles[role.Name]; !ok {
 				roles[role.Name] = &report.Role{
 					Name:               role.Name,

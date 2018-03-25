@@ -11,7 +11,7 @@ import (
 // State represents Mesos cluster state
 type State struct {
 	Frameworks []Framework `json:"frameworks"`
-	Slaves     []Slave     `json:"slaves"`
+	Agents     []Agent     `json:"slaves"`
 }
 
 // Framework represents framework info from Mesos cluster state
@@ -26,7 +26,7 @@ type Framework struct {
 type Task struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
-	SlaveID   string    `json:"slave_id"`
+	AgentID   string    `json:"slave_id"`
 	State     string    `json:"state"`
 	Resources Resources `json:"resources"`
 }
@@ -47,8 +47,8 @@ func (r *Resources) Add(more Resources) {
 	r.Memory += more.Memory
 }
 
-// Slave represents slave info from Mesos cluster state
-type Slave struct {
+// Agent represents agent info from Mesos cluster state
+type Agent struct {
 	ID         string                 `json:"id"`
 	Hostname   string                 `json:"hostname"`
 	Attributes map[string]interface{} `json:"attributes"`

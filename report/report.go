@@ -6,13 +6,13 @@ import (
 	"github.com/bobrik/scrappy/mesos"
 )
 
-// Report contains resource usage on slave, role and task leve
+// Report contains resource usage on agent, role and task leve
 type Report struct {
-	Slaves []*Slave `json:"slaves"`
+	Agents []*Agent `json:"slaves"`
 }
 
-// Slave represents slave's state in the report
-type Slave struct {
+// Agent represents agent's state in the report
+type Agent struct {
 	ID                 string                 `json:"id"`
 	Hostname           string                 `json:"hostname"`
 	Attributes         map[string]interface{} `json:"attributes"`
@@ -22,7 +22,7 @@ type Slave struct {
 }
 
 // SortString returns string representation for sorting
-func (s Slave) SortString() string {
+func (s Agent) SortString() string {
 	p := validHostname.FindStringSubmatch(s.Hostname)
 
 	if p == nil {
@@ -51,30 +51,30 @@ type Task struct {
 // Generate converts Mesos state into the report
 func Generate(state *mesos.State, role string) *Report {
 	r := &Report{
-		Slaves: make([]*Slave, 0, len(state.Slaves)),
+		Agents: make([]*Agent, 0, len(state.Agents)),
 	}
 
-	slaves := make(map[string]*Slave, len(state.Slaves))
+	agents := make(map[string]*Agent, len(state.Agents))
 
-	for _, slave := range slaveMap(state) {
-		slaves[slave.ID] = &Slave{
-			ID:                 slave.ID,
-			Hostname:           slave.Hostname,
-			Attributes:         slave.Attributes,
-			AvailableResources: slave.Resources,
-			Roles:              make(map[string]*Role, len(slave.ReservedResources)+1),
+	for _, agent := range agentMap(state) {
+		agents[agent.ID] = &Agent{
+			ID:                 agent.ID,
+			Hostname:           agent.Hostname,
+			Attributes:         agent.Attributes,
+			AvailableResources: agent.Resources,
+			Roles:              make(map[string]*Role, len(agent.ReservedResources)+1),
 		}
 
-		if slave.UnreservedResources.CPUs > 0 && slave.UnreservedResources.Memory > 0 {
-			slaves[slave.ID].Roles["*"] = &Role{
+		if agent.UnreservedResources.CPUs > 0 && agent.UnreservedResources.Memory > 0 {
+			agents[agent.ID].Roles["*"] = &Role{
 				Name:               "*",
 				Tasks:              []*Task{},
-				AvailableResources: slave.UnreservedResources,
+				AvailableResources: agent.UnreservedResources,
 			}
 		}
 
-		for name, resources := range slave.ReservedResources {
-			slaves[slave.ID].Roles[name] = &Role{
+		for name, resources := range agent.ReservedResources {
+			agents[agent.ID].Roles[name] = &Role{
 				Name:               name,
 				Tasks:              []*Task{},
 				AvailableResources: resources,
@@ -84,12 +84,12 @@ func Generate(state *mesos.State, role string) *Report {
 
 	for _, f := range state.Frameworks {
 		for _, t := range f.Tasks {
-			slave := slaves[t.SlaveID]
+			agent := agents[t.AgentID]
 
-			slave.AllocatedResources.Add(t.Resources)
-			slave.Roles[f.Role].AllocatedResources.Add(t.Resources)
+			agent.AllocatedResources.Add(t.Resources)
+			agent.Roles[f.Role].AllocatedResources.Add(t.Resources)
 
-			slave.Roles[f.Role].Tasks = append(slave.Roles[f.Role].Tasks, &Task{
+			agent.Roles[f.Role].Tasks = append(agent.Roles[f.Role].Tasks, &Task{
 				ID:        t.ID,
 				Name:      t.Name,
 				Framework: f.Name,
@@ -98,33 +98,33 @@ func Generate(state *mesos.State, role string) *Report {
 		}
 	}
 
-	filter(slaves, role)
+	filter(agents, role)
 
-	for _, s := range slaves {
-		r.Slaves = append(r.Slaves, s)
+	for _, s := range agents {
+		r.Agents = append(r.Agents, s)
 	}
 
 	return r
 }
 
-// filter removes slaves that do not include given role
-func filter(slaves map[string]*Slave, role string) {
+// filter removes agents that do not include given role
+func filter(agents map[string]*Agent, role string) {
 	if role == "" {
 		return
 	}
 
-	for id, slave := range slaves {
-		if _, ok := slave.Roles[role]; !ok {
-			delete(slaves, id)
+	for id, agent := range agents {
+		if _, ok := agent.Roles[role]; !ok {
+			delete(agents, id)
 		}
 	}
 }
 
-// slaveMap converts a slice of slaves into a map id -> slave
-func slaveMap(state *mesos.State) map[string]mesos.Slave {
-	m := make(map[string]mesos.Slave, len(state.Slaves))
+// agentMap converts a slice of agents into a map id -> agent
+func agentMap(state *mesos.State) map[string]mesos.Agent {
+	m := make(map[string]mesos.Agent, len(state.Agents))
 
-	for _, s := range state.Slaves {
+	for _, s := range state.Agents {
 		m[s.ID] = s
 	}
 
