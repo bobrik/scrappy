@@ -13,7 +13,7 @@ import (
 
 func main() {
 	u := flag.String("u", "", "mesos url (http://host:port)")
-	s := flag.String("s", "host", "sort order for slaves: host, cpu, cpu_percent, mem, mem_percent, tasks")
+	s := flag.String("s", "host", "sort order for agents: host, cpu, cpu_percent, mem, mem_percent, tasks")
 	r := flag.Bool("r", false, "reverse order")
 	f := flag.String("f", "", "role name to filter on")
 
@@ -35,13 +35,13 @@ func main() {
 	}
 
 	rep := report.Generate(state, *f)
-	report.SortSlaves(rep.Slaves, *s, *r)
+	report.SortAgents(rep.Agents, *s, *r)
 
-	for i, slave := range rep.Slaves {
-		fmt.Printf("%s: %s / %s (%v)\n", slave.Hostname, slave.AllocatedResources.String(), slave.AvailableResources.String(), slave.Attributes)
+	for i, agent := range rep.Agents {
+		fmt.Printf("%s: %s / %s (%v)\n", agent.Hostname, agent.AllocatedResources.String(), agent.AvailableResources.String(), agent.Attributes)
 
 		fmt.Printf("  roles:\n")
-		for _, role := range slave.Roles {
+		for _, role := range agent.Roles {
 			fmt.Printf("    - %s: %s / %s\n", role.Name, role.AllocatedResources.String(), role.AvailableResources.String())
 			fmt.Printf("      tasks: %d\n", len(role.Tasks))
 			for _, task := range role.Tasks {
@@ -49,7 +49,7 @@ func main() {
 			}
 		}
 
-		if i < len(rep.Slaves)-1 {
+		if i < len(rep.Agents)-1 {
 			fmt.Println()
 		}
 	}

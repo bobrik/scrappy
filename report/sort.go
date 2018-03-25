@@ -11,47 +11,47 @@ const (
 	tasksOrder      = "tasks"
 )
 
-// SortSlaves sorts slaves in the desired order
-func SortSlaves(slaves []*Slave, order string, reverse bool) {
+// SortAgents sorts agents in the desired order
+func SortAgents(agents []*Agent, order string, reverse bool) {
 	switch order {
 	case hostOrder:
-		sort.Sort(slaveSorter{slaves: slaves, less: lessHost})
+		sort.Sort(agentSorter{agents: agents, less: lessHost})
 	case cpuOrder:
-		sort.Sort(slaveSorter{slaves: slaves, less: lessCPU})
+		sort.Sort(agentSorter{agents: agents, less: lessCPU})
 	case cpuPercentOrder:
-		sort.Sort(slaveSorter{slaves: slaves, less: lessCPUPercent})
+		sort.Sort(agentSorter{agents: agents, less: lessCPUPercent})
 	case memOrder:
-		sort.Sort(slaveSorter{slaves: slaves, less: lessMem})
+		sort.Sort(agentSorter{agents: agents, less: lessMem})
 	case memPercentOrder:
-		sort.Sort(slaveSorter{slaves: slaves, less: lessMemPercent})
+		sort.Sort(agentSorter{agents: agents, less: lessMemPercent})
 	case tasksOrder:
-		sort.Sort(slaveSorter{slaves: slaves, less: lessTasks})
+		sort.Sort(agentSorter{agents: agents, less: lessTasks})
 	}
 
 	if reverse {
-		for i := len(slaves)/2 - 1; i >= 0; i-- {
-			opp := len(slaves) - 1 - i
-			slaves[i], slaves[opp] = slaves[opp], slaves[i]
+		for i := len(agents)/2 - 1; i >= 0; i-- {
+			opp := len(agents) - 1 - i
+			agents[i], agents[opp] = agents[opp], agents[i]
 		}
 	}
 }
 
-// slaveSorter is a helper structure to implement Slave sorters.
-// users have to supply a slice of slaves and less fuction
+// agentSorter is a helper structure to implement Agent sorters.
+// users have to supply a slice of agents and less fuction
 // equivalent to Less() method of sort.Sorter interface
-type slaveSorter struct {
-	slaves []*Slave
-	less   func(*Slave, *Slave) bool
+type agentSorter struct {
+	agents []*Agent
+	less   func(*Agent, *Agent) bool
 }
 
-func (s slaveSorter) Len() int {
-	return len(s.slaves)
+func (s agentSorter) Len() int {
+	return len(s.agents)
 }
 
-func (s slaveSorter) Swap(i, j int) {
-	s.slaves[i], s.slaves[j] = s.slaves[j], s.slaves[i]
+func (s agentSorter) Swap(i, j int) {
+	s.agents[i], s.agents[j] = s.agents[j], s.agents[i]
 }
 
-func (s slaveSorter) Less(i, j int) bool {
-	return s.less(s.slaves[i], s.slaves[j])
+func (s agentSorter) Less(i, j int) bool {
+	return s.less(s.agents[i], s.agents[j])
 }

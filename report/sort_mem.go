@@ -1,6 +1,6 @@
 package report
 
-// lessMem compares two slaves in terms of memory usage
-func lessMem(i *Slave, j *Slave) bool {
+// lessMem compares two agents in terms of memory usage
+func lessMem(i *Agent, j *Agent) bool {
 	return i.AllocatedResources.Memory < j.AllocatedResources.Memory
 }
