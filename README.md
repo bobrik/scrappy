@@ -62,3 +62,23 @@ The following options are available:
 
 * `-u` Mesos URL to fetch data from.
 * `-f` role name to filter on.
+
+### Attributes
+
+`attributes` reports resource usage grouped by attribute key-value pairs:
+
+```
+docker run --rm bobrik/scrappy attributes -u http://mesos-master:port
+```
+
+Sample report showing just one attribute:
+
+```
+attribute CPUs used CPUs total     CPU %  RAM used RAM total     RAM %
+ rack=101      0.30       2.00    15.00%    0.12GB    0.98GB    12.79%
+```
+
+The following options are available:
+
+* `-u` Mesos URL to fetch data from.
+* `-f` role name to filter on.

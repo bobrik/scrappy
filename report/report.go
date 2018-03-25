@@ -32,6 +32,14 @@ func (s Slave) SortString() string {
 	return fmt.Sprintf("%010s%s%010s", p[1], p[2], p[3])
 }
 
+// Attribute represents a key-value attribute in the report
+type Attribute struct {
+	Key                string          `json:"key"`
+	Value              interface{}     `json:"value"`
+	AvailableResources mesos.Resources `json:"available_resources"`
+	AllocatedResources mesos.Resources `json:"allocated_resources"`
+}
+
 // Role represents role's state in the report
 type Role struct {
 	Name               string          `json:"name"`
