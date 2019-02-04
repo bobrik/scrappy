@@ -2,6 +2,7 @@ package report
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/bobrik/scrappy/mesos"
 )
@@ -85,11 +86,25 @@ func Generate(state *mesos.State, role string) *Report {
 	for _, f := range state.Frameworks {
 		for _, t := range f.Tasks {
 			slave := slaves[t.SlaveID]
+			role := f.Role
+			if t.Role != "" {
+				role = t.Role
+			}
+			// marathon grew multi_role support, and is subscribed implicitly to '*' in addition
+			// to other roles it may subscribe from.
+			// However, the 'role' that is set at the task level isn't accurate in the case where
+			// the task is actually using '*' resources.  Log a warning that stats may be inaccurate
+			// and add it to '*' if this occurs.  Longer term once mesos has fixed this, this should
+			// be removed.
+			if _, ok := slave.Roles[role]; !ok {
+				log.Printf("warning: results will be inaccurate: task id %s on slave id %s (host %s) has role %s which isn't a defined resource; assuming it's an implicit '*' instead.", t.ID, t.SlaveID, slave.Hostname, role)
+				role = "*"
+			}
 
 			slave.AllocatedResources.Add(t.Resources)
-			slave.Roles[f.Role].AllocatedResources.Add(t.Resources)
+			slave.Roles[role].AllocatedResources.Add(t.Resources)
 
-			slave.Roles[f.Role].Tasks = append(slave.Roles[f.Role].Tasks, &Task{
+			slave.Roles[role].Tasks = append(slave.Roles[role].Tasks, &Task{
 				ID:        t.ID,
 				Name:      t.Name,
 				Framework: f.Name,

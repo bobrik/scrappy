@@ -26,6 +26,7 @@ type Framework struct {
 type Task struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
+	Role      string    `json:"role"`
 	SlaveID   string    `json:"slave_id"`
 	State     string    `json:"state"`
 	Resources Resources `json:"resources"`
