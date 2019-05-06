@@ -73,20 +73,20 @@ func main() {
 	// there should be a saner way to do this with fmt.sprintf....
 	cpu_s := fmt.Sprintf("%f", *c)
 	cpu_s = strings.TrimRight(strings.TrimRight(cpu_s, "0"), ".")
-	w.Write([]byte(fmt.Sprintf("role\tCPUs used\tCPUs total\tCPU %%\tRAM used\tRAM total\tRAM %%\tOffers remaining for %.fMB, %s CPU\t\n", *m, cpu_s)))
+	w.Write([]byte(fmt.Sprintf("role\tCPUs %%\tused/total\tRAM %%\tused/total\tOffers for %.fMB, %s CPU\t\n", *m, cpu_s)))
 
 	for _, name := range names {
 		role := roles[name]
 		fmt.Fprintf(
 			w,
-			"%s\t%.2f\t%.2f\t%.2f%%\t%.2fGB\t%.2fGB\t%.2f%%\t%d\t\n",
+			"%s\t%.2f%%\t%.2f/%.2f\t%.2f%%\t%.2f/%.2fGB\t%d\t\n",
 			role.Name,
+			role.AllocatedResources.CPUs/role.AvailableResources.CPUs*100,
 			role.AllocatedResources.CPUs,
 			role.AvailableResources.CPUs,
-			role.AllocatedResources.CPUs/role.AvailableResources.CPUs*100,
+			role.AllocatedResources.Memory/role.AvailableResources.Memory*100,
 			role.AllocatedResources.Memory/1024,
 			role.AvailableResources.Memory/1024,
-			role.AllocatedResources.Memory/role.AvailableResources.Memory*100,
 			resource_offers[role.Name],
 		)
 	}
